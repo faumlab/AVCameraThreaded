@@ -1,0 +1,1 @@
+del .\Images\*.tiff /Q

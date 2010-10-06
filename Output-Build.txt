@@ -1,0 +1,45 @@
+1>------ Build started: Project: AVCameraThreaded, Configuration: Debug Win32 ------
+1>Compiling...
+1>MainMultipleCameras.cpp
+1>d:\avcamerathreaded\src\mainmultiplecameras.cpp(403) : warning C4244: 'initializing' : conversion from 'double' to 'unsigned __int64', possible loss of data
+1>d:\avcamerathreaded\src\mainmultiplecameras.cpp(688) : warning C4101: 'ThHandle1' : unreferenced local variable
+1>d:\avcamerathreaded\src\mainmultiplecameras.cpp(684) : warning C4101: 'cameraThreadID2' : unreferenced local variable
+1>d:\avcamerathreaded\src\mainmultiplecameras.cpp(683) : warning C4101: 'cameraThreadID1' : unreferenced local variable
+1>d:\avcamerathreaded\src\mainmultiplecameras.cpp(689) : warning C4101: 'ThHandle2' : unreferenced local variable
+1>Linking...
+1>imagelib.lib(ImageLibTiff.obj) : MSIL .netmodule or module compiled with /GL found; restarting link with /LTCG; add /LTCG to the link command line to improve linker performance
+1>LINK : warning LNK4075: ignoring '/INCREMENTAL' due to '/LTCG' specification
+1>LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
+1>Generating code
+1>Finished generating code
+1>imagelib.lib(tif_warning.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with './lib\imagelib.lib' or at 'd:\AVCameraThreaded\Debug\vc80.pdb'; linking object as if no debug info
+1>imagelib.lib(tif_dirinfo.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with './lib\imagelib.lib' or at 'd:\AVCameraThreaded\Debug\vc80.pdb'; linking object as if no debug info
+1>imagelib.lib(tif_swab.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with './lib\imagelib.lib' or at 'd:\AVCameraThreaded\Debug\vc80.pdb'; linking object as if no debug info
+1>imagelib.lib(ImageLibTiff.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with './lib\imagelib.lib' or at 'd:\AVCameraThreaded\Debug\vc80.pdb'; linking object as if no debug info
+1>imagelib.lib(tif_error.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with './lib\imagelib.lib' or at 'd:\AVCameraThreaded\Debug\vc80.pdb'; linking object as if no debug info
+1>imagelib.lib(tif_strip.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with './lib\imagelib.lib' or at 'd:\AVCameraThreaded\Debug\vc80.pdb'; linking object as if no debug info
+1>imagelib.lib(tif_close.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with './lib\imagelib.lib' or at 'd:\AVCameraThreaded\Debug\vc80.pdb'; linking object as if no debug info
+1>imagelib.lib(tif_write.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with './lib\imagelib.lib' or at 'd:\AVCameraThreaded\Debug\vc80.pdb'; linking object as if no debug info
+1>imagelib.lib(tif_predict.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with './lib\imagelib.lib' or at 'd:\AVCameraThreaded\Debug\vc80.pdb'; linking object as if no debug info
+1>imagelib.lib(tif_dumpmode.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with './lib\imagelib.lib' or at 'd:\AVCameraThreaded\Debug\vc80.pdb'; linking object as if no debug info
+1>imagelib.lib(tif_lzw.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with './lib\imagelib.lib' or at 'd:\AVCameraThreaded\Debug\vc80.pdb'; linking object as if no debug info
+1>imagelib.lib(tif_thunder.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with './lib\imagelib.lib' or at 'd:\AVCameraThreaded\Debug\vc80.pdb'; linking object as if no debug info
+1>imagelib.lib(tif_aux.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with './lib\imagelib.lib' or at 'd:\AVCameraThreaded\Debug\vc80.pdb'; linking object as if no debug info
+1>imagelib.lib(tif_dirwrite.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with './lib\imagelib.lib' or at 'd:\AVCameraThreaded\Debug\vc80.pdb'; linking object as if no debug info
+1>imagelib.lib(tif_compress.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with './lib\imagelib.lib' or at 'd:\AVCameraThreaded\Debug\vc80.pdb'; linking object as if no debug info
+1>imagelib.lib(tif_read.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with './lib\imagelib.lib' or at 'd:\AVCameraThreaded\Debug\vc80.pdb'; linking object as if no debug info
+1>imagelib.lib(tif_open.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with './lib\imagelib.lib' or at 'd:\AVCameraThreaded\Debug\vc80.pdb'; linking object as if no debug info
+1>imagelib.lib(tif_flush.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with './lib\imagelib.lib' or at 'd:\AVCameraThreaded\Debug\vc80.pdb'; linking object as if no debug info
+1>imagelib.lib(tif_tile.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with './lib\imagelib.lib' or at 'd:\AVCameraThreaded\Debug\vc80.pdb'; linking object as if no debug info
+1>imagelib.lib(tif_dir.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with './lib\imagelib.lib' or at 'd:\AVCameraThreaded\Debug\vc80.pdb'; linking object as if no debug info
+1>imagelib.lib(tif_win32.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with './lib\imagelib.lib' or at 'd:\AVCameraThreaded\Debug\vc80.pdb'; linking object as if no debug info
+1>imagelib.lib(fax3sm_winnt.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with './lib\imagelib.lib' or at 'd:\AVCameraThreaded\Debug\vc80.pdb'; linking object as if no debug info
+1>imagelib.lib(tif_packbits.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with './lib\imagelib.lib' or at 'd:\AVCameraThreaded\Debug\vc80.pdb'; linking object as if no debug info
+1>imagelib.lib(tif_luv.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with './lib\imagelib.lib' or at 'd:\AVCameraThreaded\Debug\vc80.pdb'; linking object as if no debug info
+1>imagelib.lib(tif_fax3.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with './lib\imagelib.lib' or at 'd:\AVCameraThreaded\Debug\vc80.pdb'; linking object as if no debug info
+1>imagelib.lib(tif_codec.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with './lib\imagelib.lib' or at 'd:\AVCameraThreaded\Debug\vc80.pdb'; linking object as if no debug info
+1>imagelib.lib(tif_dirread.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with './lib\imagelib.lib' or at 'd:\AVCameraThreaded\Debug\vc80.pdb'; linking object as if no debug info
+1>Embedding manifest...
+1>Build log was saved at "file://d:\AVCameraThreaded\Debug\BuildLog.htm"
+1>AVCameraThreaded - 0 error(s), 34 warning(s)
+========== Build: 1 succeeded, 0 failed, 0 up-to-date, 0 skipped ==========
