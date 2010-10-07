@@ -42,6 +42,7 @@ tCamera			GCamera2;	//Camera Instance for the camera with UniqueId 112321
 
 int numCameras = 0;
 char surveyDir[30];
+unsigned long lastBeepTimeStamp = 0;
 
 BOOL WINAPI Beep(
   __in  DWORD dwFreq,
@@ -293,7 +294,7 @@ void _STDCALL CameraEventCB(void* Context,
 			try{
 			sprintf(cameraSettingsFilename,"%s/%lu/stats%s",surveyDir,UniqueId,".txt");
 			fopen_s(&fp,cameraSettingsFilename,"w");
-			fprintf_s(fp,"Stats for Camera %lu\n",UniqueId);
+			fprintf_s(fp,"Stats for Camera %lu\nFrame,Exposure time,Gain Value,White Balance RED,White Balance BLUE",UniqueId);
 			fclose(fp);
 			}catch(char *e){}
 
@@ -518,31 +519,33 @@ void _STDCALL FrameDoneCB(tPvFrame* pFrame)
 		}
 	}
 
-	try{
-	/*Save stats in a single txt file*/
-	FILE *fp;
-	fopen_s(&fp,statsFileName,"w");
-	fprintf_s(fp,"Exposure time : %I32u\n",exp);
-	fprintf_s(fp,"Gain Value : %I32u\n",gain);
-	fprintf_s(fp,"White Balance Red : %I32u\n",whitebalRed);
-	fprintf_s(fp,"White Balance Blue : %I32u\n",whitebalBlue);
-	fclose(fp);
-	}catch(char *e){
-	printf("could not save stats in single file\n");
-	}
+	
 	
 	try{
 	/*Save stats in a global file*/
 	FILE *globalStatFp;
 	sprintf(statsFileNameGlobal,"%s/%lu%s",surveyDir,*pCamInstance,"/stats.txt");
 	fopen_s(&globalStatFp,statsFileNameGlobal,"a");
-	fprintf_s(globalStatFp,"Frame:%s Exposure time : %I32u\n",timestamp,exp);
-	fprintf_s(globalStatFp,"Frame:%s Gain Value : %I32u\n",timestamp,gain);
+	fprintf_s(globalStatFp,"\n%s,%I32u,%I32u,%I32u,%I32u",timestamp,exp,gain,whitebalRed,whitebalBlue);
+	/*fprintf_s(globalStatFp,"Frame:%s Gain Value : %I32u\n",timestamp,gain);
 	fprintf_s(globalStatFp,"Frame:%s White Balance Red : %I32u\n",timestamp,whitebalRed);
 	fprintf_s(globalStatFp,"Frame:%s White Balance Blue : %I32u\n",timestamp,whitebalBlue);
+	*/
 	fclose(globalStatFp);
 	}catch(char *e){
-	printf("could not save stats in global file\n");
+		printf("could not save stats in global file\n");
+		try{
+		/*Save stats in a single txt file*/
+		FILE *fp;
+		fopen_s(&fp,statsFileName,"w");
+		fprintf_s(fp,"Exposure time : %I32u\n",exp);
+		fprintf_s(fp,"Gain Value : %I32u\n",gain);
+		fprintf_s(fp,"White Balance Red : %I32u\n",whitebalRed);
+		fprintf_s(fp,"White Balance Blue : %I32u\n",whitebalBlue);
+		fclose(fp);
+		}catch(char *e){
+		printf("could not save stats in single file\n");
+		}
 	}
 
 	/*
@@ -553,7 +556,12 @@ void _STDCALL FrameDoneCB(tPvFrame* pFrame)
 		pFrame->Status == ePvErrDataMissing)
 		PvCaptureQueueFrame(tCamInstance->Handle,pFrame,FrameDoneCB);
 	else{
-		Beep( 750, 300 );
+		//beepSafe(strtoul(timestamp,'\0',10));
+		unsigned long FormatedTimestamp = strtoul(timestamp,'\0',10);
+		if(lastBeepTimeStamp == 0 || (FormatedTimestamp-lastBeepTimeStamp > 20)){
+		Beep(750, 300);
+		lastBeepTimeStamp = FormatedTimestamp;
+		}
 	}
 
 
@@ -745,6 +753,23 @@ void CameraUnsetup(tCamera *tCamInstance)
 		delete [] (char*)tCamInstance->Frames[i].ImageBuffer;
 }
 
+void beep_s(unsigned long FormatedTimestamp){
+
+	if(lastBeepTimeStamp == 0 || (FormatedTimestamp-lastBeepTimeStamp > 20)){
+		Beep(750, 300);
+		lastBeepTimeStamp = FormatedTimestamp;
+	}
+}
+
+void __stdcall beepSafe(unsigned long FormatedTimestamp){
+
+	if(lastBeepTimeStamp == 0 || (FormatedTimestamp-lastBeepTimeStamp > 20)){
+		Beep(750, 300);
+		lastBeepTimeStamp = FormatedTimestamp;
+	}
+}
+
+
 // CTRL-C handler
 //TODO Remove the control C handler
 #ifdef _WINDOWS
@@ -761,6 +786,7 @@ void CtrlCHandler(int Signo)
 	return true;
 #endif
 }
+
 
 
 int main(int argc, char* argv[])
@@ -803,7 +829,8 @@ int main(int argc, char* argv[])
 		time(&ltime);
 		struct tm *today;
 
-		//Sleep(10000); //for testing initialization from startup		printf("Starting Frame Collector at %s", ctime( &ltime ) );
+		//Sleep(10000); //for testing initialization from startup
+		printf("Starting Frame Collector at %s", ctime( &ltime ) );
 		today = localtime(&ltime);
 		sprintf(surveyDir,"..\\Survey_%d_%d_%d_%d_%d_%d",today->tm_year+1900,today->tm_mon,today->tm_mday,
 			today->tm_hour,today->tm_min,today->tm_sec);
