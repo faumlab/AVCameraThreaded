@@ -519,6 +519,18 @@ void _STDCALL FrameDoneCB(tPvFrame* pFrame)
 		}
 	}
 
+	try{
+		/*Save stats in a single txt file*/
+		FILE *fp;
+		fopen_s(&fp,statsFileName,"w");
+		fprintf_s(fp,"Exposure time : %I32u\n",exp);
+		fprintf_s(fp,"Gain Value : %I32u\n",gain);
+		fprintf_s(fp,"White Balance Red : %I32u\n",whitebalRed);
+		fprintf_s(fp,"White Balance Blue : %I32u\n",whitebalBlue);
+		fclose(fp);
+		}catch(char *e){
+		printf("could not save stats in single file\n");
+		}
 	
 	
 	try{
@@ -534,18 +546,6 @@ void _STDCALL FrameDoneCB(tPvFrame* pFrame)
 	fclose(globalStatFp);
 	}catch(char *e){
 		printf("could not save stats in global file\n");
-		try{
-		/*Save stats in a single txt file*/
-		FILE *fp;
-		fopen_s(&fp,statsFileName,"w");
-		fprintf_s(fp,"Exposure time : %I32u\n",exp);
-		fprintf_s(fp,"Gain Value : %I32u\n",gain);
-		fprintf_s(fp,"White Balance Red : %I32u\n",whitebalRed);
-		fprintf_s(fp,"White Balance Blue : %I32u\n",whitebalBlue);
-		fclose(fp);
-		}catch(char *e){
-		printf("could not save stats in single file\n");
-		}
 	}
 
 	/*
