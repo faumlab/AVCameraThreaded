@@ -548,6 +548,13 @@ void _STDCALL FrameDoneCB(tPvFrame* pFrame)
 		printf("could not save stats in global file\n");
 	}
 
+	/*Increase AutoExposureMax by 100 every 30 segs and keep it between 200 & 600
+	
+	*/
+	
+	//errorCode = PvAttrUint32Set(tCamInstance->Handle,"ExposureAutoMax",400);
+	//if(errorCode!=0)
+	//	convertandPrintErrorCode(errorCode);
 	/*
 		If the frame was completed (or if data were missing/lost) we re-enqueue it
 	*/
@@ -555,12 +562,20 @@ void _STDCALL FrameDoneCB(tPvFrame* pFrame)
 		pFrame->Status == ePvErrDataLost ||
 		pFrame->Status == ePvErrDataMissing)
 		PvCaptureQueueFrame(tCamInstance->Handle,pFrame,FrameDoneCB);
-	else{
+
+	/*Beep if frame is not success*/
+	if(pFrame->Status != ePvErrSuccess ){
 		//beepSafe(strtoul(timestamp,'\0',10));
 		unsigned long FormatedTimestamp = strtoul(timestamp,'\0',10);
-		if(lastBeepTimeStamp == 0 || (FormatedTimestamp-lastBeepTimeStamp > 20)){
+		unsigned long lastBeepCameraTimeStamp = *(unsigned long*)(pFrame->Context[1]);
+		//TODO: carefull with the "> 20" because unsigned long doesnt have negative values - chechk later the correct implementation
+		if(lastBeepCameraTimeStamp == 0 || (FormatedTimestamp-lastBeepCameraTimeStamp > 200)){
 		Beep(750, 300);
-		lastBeepTimeStamp = FormatedTimestamp;
+		//lastBeepTimeStamp = FormatedTimestamp;
+		for(int i=0;i<FRAMESCOUNT;i++){
+		*(unsigned long*)(tCamInstance->Frames[i].Context[1]) = FormatedTimestamp;
+		}
+		
 		}
 	}
 
@@ -629,7 +644,9 @@ tPvErr CameraSetup(tCamera *tCamInstance)
 bool CameraStart(tCamera *tCamInstance)
 {
 	unsigned long FrameSize = 0;
-
+	//unsigned long zero = 10;
+	//unsigned long *p = (unsigned long*)malloc(sizeof(unsigned long));
+	//*p = 10;
 	// Auto adjust the packet size to max supported by the network, up to a max of 8228.
 	// NOTE: In Vista, if the packet size on the network card is set lower than 8228,
 	//       this call may break the network card's driver. See release notes.
@@ -668,11 +685,22 @@ bool CameraStart(tCamera *tCamInstance)
 	}
 
 	//Set camera parameters
-	PvCommandRun(tCamInstance->Handle,"TimeStampReset");
-	PvAttrEnumSet(tCamInstance->Handle,"ExposureMode","Auto");
-	PvAttrEnumSet(tCamInstance->Handle,"GainMode","Auto");
-	PvAttrEnumSet(tCamInstance->Handle,"WhitebalMode","Auto");
-
+	errorCode = PvAttrEnumSet(tCamInstance->Handle,"ExposureMode","Auto");
+	if(errorCode!=0)
+		convertandPrintErrorCode(errorCode);
+	errorCode = PvAttrUint32Set(tCamInstance->Handle,"ExposureAutoMax",400);
+	if(errorCode!=0)
+		convertandPrintErrorCode(errorCode);
+	errorCode = PvAttrEnumSet(tCamInstance->Handle,"GainMode","Auto");
+	if(errorCode!=0)
+		convertandPrintErrorCode(errorCode);
+	errorCode = PvAttrEnumSet(tCamInstance->Handle,"WhitebalMode","Auto");
+	if(errorCode!=0)
+		convertandPrintErrorCode(errorCode);
+	errorCode = PvCommandRun(tCamInstance->Handle,"TimeStampReset");
+	if(errorCode!=0)
+		convertandPrintErrorCode(errorCode);
+	
 	unsigned long timeStampFrequency;
 	PvAttrUint32Get(tCamInstance->Handle,"TimeStampFrequency",&timeStampFrequency);
 	printf("TimeStampFrequency: %32u",&timeStampFrequency);
@@ -688,11 +716,43 @@ bool CameraStart(tCamera *tCamInstance)
 	}
 	else                
 	{
+		//PvAttrUint32Set(tCamInstance->Handle,"ExposureValue",2500);
 		// then enqueue all the frames
+		
 		for(int i=0;i<FRAMESCOUNT;i++)
 		{
+
+
+
+
 			(tCamInstance->Frames[i].Context[0]) = (unsigned long *)&(tCamInstance->UID);
+			//unsigned long *pZero = (unsigned long*)malloc(sizeof(unsigned long));
+			//*pZero = 10;
+			(tCamInstance->Frames[i].Context[1]) = (unsigned long*)malloc(sizeof(unsigned long)); //lastTimeErrorBeep
+			*(unsigned long*)(tCamInstance->Frames[i].Context[1]) = 0;
+			//unsigned long lastBeepCameraTimeStamp = *(unsigned long *)(tCamInstance->Frames[i].Context[1]);
 			//unsigned long * pCamInstance = (unsigned long  *)(tCamInstance->Frames->Context[0]);
+			/*Sagui code
+			unsigned long long timeStampMerged  = pFrame->TimestampLo + 
+		pFrame->TimestampHi*4294967296.;
+	
+	unsigned long long timeStampFormated = ((unsigned long long)pFrame->TimestampHi << 32) 
+		| pFrame->TimestampLo;
+	*/
+	//if(pFrame->Context[0])
+	unsigned long  *pCamInstance = (unsigned long *)(tCamInstance->Frames->Context[0]);
+
+	/*Sagui code
+	sprintf(timestamp,"%020I64u",timeStampFormated);
+	//drop the right 13 numbers to reduce time precision. Drop less number to increase timestamp precision
+	sprintf(timestamp,"%.13s",timestamp);
+	//add timestamp format to filename
+	sprintf(filename,"%s/%lu%s%s%s",surveyDir,*pCamInstance,"/frame",timestamp,".tiff");
+	*/
+
+
+
+
 
 			PvCaptureQueueFrame(tCamInstance->Handle,&(tCamInstance->Frames[i]),FrameDoneCB);
 		}
@@ -832,7 +892,7 @@ int main(int argc, char* argv[])
 		//Sleep(10000); //for testing initialization from startup
 		printf("Starting Frame Collector at %s", ctime( &ltime ) );
 		today = localtime(&ltime);
-		sprintf(surveyDir,"..\\Survey_%d_%d_%d_%d_%d_%d",today->tm_year+1900,today->tm_mon,today->tm_mday,
+		sprintf(surveyDir,"..\\Survey_%d_%d_%d_%d_%d_%d",today->tm_year+1900,today->tm_mon+1,today->tm_mday,
 			today->tm_hour,today->tm_min,today->tm_sec);
 		char cmdMkdir[200];
 		sprintf(cmdMkdir,"mkdir %s",surveyDir);
