@@ -31,7 +31,6 @@
 */
 
 #include "mainHeader.h"
-#include "stdio.h"
 #include "direct.h"
 #include "time.h"
 
@@ -688,7 +687,10 @@ bool CameraStart(tCamera *tCamInstance)
 	errorCode = PvAttrEnumSet(tCamInstance->Handle,"ExposureMode","Auto");
 	if(errorCode!=0)
 		convertandPrintErrorCode(errorCode);
-	errorCode = PvAttrUint32Set(tCamInstance->Handle,"ExposureAutoMax",400);
+	errorCode = PvAttrUint32Set(tCamInstance->Handle,"ExposureValue",100);
+	if(errorCode!=0)
+		convertandPrintErrorCode(errorCode);
+	errorCode = PvAttrUint32Set(tCamInstance->Handle,"ExposureAutoMax",200);
 	if(errorCode!=0)
 		convertandPrintErrorCode(errorCode);
 	errorCode = PvAttrEnumSet(tCamInstance->Handle,"GainMode","Auto");

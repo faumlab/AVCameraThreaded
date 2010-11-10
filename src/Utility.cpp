@@ -6,7 +6,7 @@
  *	   for some common utilities for all other files
  *  @author
  *   Main contributors (see contributors.h for copyright, address and affiliation details)
- *   - Waazim Reza               <wreza@fau.edu>
+ *   - Waazim Reza, Sagar Aghera , Rafael Giusti               <wreza@fau.edu,saghera@fau.edu,rgiusti@fau.edu>
  ***********************************************************************
  */
 
