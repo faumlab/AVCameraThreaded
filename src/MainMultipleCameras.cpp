@@ -38,7 +38,7 @@
 // global camera data
 tCamera         GCamera1;	//Camera Instance for the camera with UniqueId 112322
 tCamera			GCamera2;	//Camera Instance for the camera with UniqueId 112321
-
+clock_t Begin, End; 
 int numCameras = 0;
 char surveyDir[30];
 unsigned long lastBeepTimeStamp = 0;
@@ -267,8 +267,10 @@ void _STDCALL CameraEventCB(void* Context,
 	tPvErr errorCode;
 	tCamera *tCamInstance = NULL;
 	char cameraDir[100];
+	char cameraDir1[100];
 	char cameraSettingsFilename[100];
 	char cmdMkdir[200];
+	char cmdMkdir1[200];
 	FILE *fp;
 	switch(Event)
 	{
@@ -283,9 +285,14 @@ void _STDCALL CameraEventCB(void* Context,
 			/*
 			Create directory to save frames for connected camera. If directory already exists, nothing happens
 			*/
-			sprintf(cameraDir,"%s\\%lu",surveyDir,UniqueId);//when working with mkdir from direct.h use "\". Working with system() use "\\"
+			sprintf(cameraDir,"%s\\%lu",surveyDir,UniqueId);   //when working with mkdir from direct.h use "\". Working with system() use "\\"
+			//sprintf(cameraDir1,"%s\\%lu%s",surveyDir,UniqueId,"-LeftCam");
+			sprintf(cameraDir1,"%s\\%s",surveyDir,"Previewer");
 			sprintf(cmdMkdir,"mkdir %s",cameraDir);
+			sprintf(cmdMkdir1,"mkdir %s",cameraDir1);
+
 			system(cmdMkdir);
+				system(cmdMkdir1);
 			//mkdir(cameraDir);
 			/*
 			Create log file for camera status
@@ -422,6 +429,7 @@ void _STDCALL FrameDoneCB(tPvFrame* pFrame)
 	char filename[100];
 	char filename1[100];
 	char timestamp[21];
+	char camview[40];
 	char statsFileName[100];
 	char statsFileNameGlobal[100];
 	tPvUint32 filevalue=0;
@@ -434,6 +442,9 @@ void _STDCALL FrameDoneCB(tPvFrame* pFrame)
 	unsigned long whitebalBlue =0;
 	unsigned long  * stringsize = 0;
 	tCamera *tCamInstance = NULL;
+		  
+		int elapTicks;
+     double elapSeconds;
 
 	/*
 	TimestampHi is the higher 32 bits of the TimeStamp
@@ -456,12 +467,24 @@ void _STDCALL FrameDoneCB(tPvFrame* pFrame)
 	sprintf(timestamp,"%020I64u",timeStampFormated);
 	//drop the right 13 numbers to reduce time precision. Drop less number to increase timestamp precision
 	sprintf(timestamp,"%.13s",timestamp);
+
+	if(*pCamInstance == 112321)
+	{
+		sprintf(camview,"%s","cam1");
+	}
+	else
+	{ 
+		sprintf(camview,"%s","cam2");
+	}
+
 	//add timestamp format to filename
 	sprintf(filename,"%s/%lu%s%s%s",surveyDir,*pCamInstance,"/frame",timestamp,".tiff");
+	sprintf(filename1,"%s/%s/%s%s",surveyDir,"Previewer",camview,".tiff");
 
 	/*
 	Save the recieved frame to the disk. The directory have to be previously created.
 	*/
+	/*start = clock();*/
 	if(!ImageWriteTiff(filename,(pFrame)))
 	{
 		printf("Failed to save the grabbed frame! \n ");
@@ -471,6 +494,29 @@ void _STDCALL FrameDoneCB(tPvFrame* pFrame)
 	{
 		//printf("frame saved\n");
 	}
+	 End = clock() * CLK_TCK;      //Timer for Camview app
+	   elapTicks = End - Begin; 
+	 elapSeconds = elapTicks/1000000;
+
+	 if(int(elapSeconds)%3 == 0)
+	 {
+
+	if(!ImageWriteTiff(filename1,(pFrame)))
+	{
+		printf("Failed to save the grabbed frame! \n ");
+		//TODO: create directory and try again...
+	}
+	else
+	{
+		//printf("frame saved\n");
+	}
+	 }
+	 else
+	 {
+	 }
+	//finish = clock();
+	//		duration = (double)(finish - start) / CLOCKS_PER_SEC;
+ //  printf( "%2.1f seconds\n", duration );
 	//*****Frame Saved*****
 
 	//*****Start Saving Stats***
@@ -687,10 +733,10 @@ bool CameraStart(tCamera *tCamInstance)
 	errorCode = PvAttrEnumSet(tCamInstance->Handle,"ExposureMode","Auto");
 	if(errorCode!=0)
 		convertandPrintErrorCode(errorCode);
-	errorCode = PvAttrUint32Set(tCamInstance->Handle,"ExposureValue",100);
+	errorCode = PvAttrUint32Set(tCamInstance->Handle,"ExposureValue",10000);
 	if(errorCode!=0)
 		convertandPrintErrorCode(errorCode);
-	errorCode = PvAttrUint32Set(tCamInstance->Handle,"ExposureAutoMax",200);
+	errorCode = PvAttrUint32Set(tCamInstance->Handle,"ExposureAutoMax",30000);
 	if(errorCode!=0)
 		convertandPrintErrorCode(errorCode);
 	errorCode = PvAttrEnumSet(tCamInstance->Handle,"GainMode","Auto");
@@ -709,7 +755,7 @@ bool CameraStart(tCamera *tCamInstance)
 
 	
 
-	if(PvCommandRun(tCamInstance->Handle,"AcquisitionStart") || PvAttrFloat32Set(tCamInstance->Handle,"FrameRate",3.0) ||
+	if(PvCommandRun(tCamInstance->Handle,"AcquisitionStart") || PvAttrFloat32Set(tCamInstance->Handle,"FrameRate",15.0) ||
 		PvAttrEnumSet(tCamInstance->Handle,"FrameStartTriggerMode","FixedRate"))
 	{
 		// if that fail, we reset the camera to non capture mode
@@ -754,7 +800,7 @@ bool CameraStart(tCamera *tCamInstance)
 
 
 
-
+			Begin = clock() * CLK_TCK;
 
 			PvCaptureQueueFrame(tCamInstance->Handle,&(tCamInstance->Frames[i]),FrameDoneCB);
 		}
